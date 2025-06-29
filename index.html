@@ -3,725 +3,715 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Comparador DIAN vs Sistema Contable</title>
+    <title>Comparador Excel DIAN vs Sistema Contable</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            line-height: 1.6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 24px;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
         
-        .header {
+        h1 {
             text-align: center;
-            margin-bottom: 32px;
-        }
-        
-        .header h1 {
-            font-size: 2rem;
-            font-weight: bold;
-            color: #1e293b;
-            margin-bottom: 8px;
-        }
-        
-        .header p {
-            color: #64748b;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
         }
         
         .upload-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 24px;
-            margin-bottom: 32px;
+            gap: 20px;
+            margin-bottom: 30px;
         }
         
-        .upload-box {
-            border: 2px dashed #cbd5e1;
-            border-radius: 12px;
-            padding: 32px;
+        .file-upload {
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            padding: 20px;
             text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
         }
         
-        .upload-box:hover {
-            border-color: #3b82f6;
-            background-color: #f8fafc;
+        .file-upload:hover {
+            border-color: #5a67d8;
+            background: #eef2ff;
         }
         
-        .upload-box.dian {
-            border-color: #3b82f6;
-            background-color: #eff6ff;
+        .file-upload input[type="file"] {
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
         }
         
-        .upload-box.system {
-            border-color: #10b981;
-            background-color: #ecfdf5;
-        }
-        
-        .upload-icon {
-            width: 48px;
-            height: 48px;
-            margin: 0 auto 16px;
-            opacity: 0.6;
-        }
-        
-        .upload-title {
-            font-size: 1.125rem;
-            font-weight: 600;
-            margin-bottom: 4px;
-        }
-        
-        .upload-subtitle {
-            font-size: 0.875rem;
-            opacity: 0.8;
-        }
-        
-        .file-info {
-            margin-top: 12px;
-            font-size: 0.875rem;
-        }
-        
-        .success-text {
-            color: #059669;
-            font-weight: 500;
-        }
-        
-        .debug-info {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            border-radius: 4px;
-            padding: 8px;
-            margin-top: 8px;
-            font-size: 0.75rem;
-            text-align: left;
-        }
-        
-        .compare-button {
-            display: block;
-            margin: 0 auto 32px;
-            background-color: #7c3aed;
+        .compare-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 12px 32px;
+            padding: 15px 30px;
             border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 500;
+            font-size: 16px;
+            font-weight: bold;
             cursor: pointer;
-            transition: background-color 0.3s;
+            width: 100%;
+            margin: 20px 0;
+            transition: transform 0.2s;
         }
         
-        .compare-button:hover {
-            background-color: #6d28d9;
+        .compare-btn:hover {
+            transform: translateY(-2px);
         }
         
-        .compare-button:disabled {
-            background-color: #9ca3af;
+        .compare-btn:disabled {
+            background: #ccc;
             cursor: not-allowed;
+            transform: none;
         }
         
         .results {
-            margin-top: 32px;
+            margin-top: 30px;
         }
         
-        .stats-grid {
+        .stats {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 16px;
-            margin-bottom: 32px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
         }
         
         .stat-card {
-            background: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
             padding: 20px;
-            border-radius: 8px;
+            border-radius: 10px;
             text-align: center;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         
         .stat-number {
-            font-size: 1.5rem;
+            font-size: 2em;
             font-weight: bold;
-            margin-bottom: 4px;
+            display: block;
         }
         
-        .stat-label {
-            font-size: 0.875rem;
-            opacity: 0.8;
-        }
-        
-        .result-section {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        
-        .result-header {
+        .tabs {
             display: flex;
-            align-items: center;
-            margin-bottom: 16px;
-            font-size: 1.125rem;
-            font-weight: 600;
+            border-bottom: 2px solid #eee;
+            margin-bottom: 20px;
         }
         
-        .result-header svg {
-            width: 20px;
-            height: 20px;
-            margin-right: 8px;
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            border-bottom: 3px solid transparent;
+            font-weight: bold;
+            transition: all 0.3s;
         }
         
-        .result-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
         }
         
-        .result-table th {
-            background-color: #f8fafc;
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-        
-        .result-table td {
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-            font-size: 0.875rem;
-        }
-        
-        .result-table tr:hover {
-            background-color: #f8fafc;
-        }
-        
-        .info-box {
-            background-color: #eff6ff;
-            border: 1px solid #bfdbfe;
-            border-radius: 8px;
-            padding: 16px;
-            margin-top: 32px;
-        }
-        
-        .info-title {
-            font-weight: 600;
-            color: #1e40af;
-            margin-bottom: 8px;
-        }
-        
-        .info-list {
-            list-style: none;
-            color: #1e40af;
-        }
-        
-        .info-list li {
-            margin-bottom: 4px;
-            font-size: 0.875rem;
-        }
-        
-        .hidden {
+        .tab-content {
             display: none;
         }
         
-        @media (max-width: 768px) {
-            .upload-section {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .tab-content.active {
+            display: block;
+        }
+        
+        .table-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        th {
+            background: #f8f9ff;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:hover {
+            background: #f8f9ff;
+        }
+        
+        .match { background-color: #d4edda; }
+        .no-match { background-color: #f8d7da; }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #667eea;
+        }
+        
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>Comparador DIAN vs Sistema Contable</h1>
-            <p>Compara registros entre archivos de la DIAN y el sistema contable basándose en nombres y precios</p>
-        </div>
-
+        <h1>🔍 Comparador Excel DIAN vs Sistema Contable</h1>
+        
         <div class="upload-section">
-            <div class="upload-box dian" onclick="document.getElementById('dianFile').click()">
-                <div class="upload-icon">🏛️</div>
-                <div class="upload-title">1. Cargar Excel de la DIAN</div>
-                <div class="upload-subtitle">Nombres en columna K, Precios en columna AD</div>
-                <input type="file" id="dianFile" class="hidden" accept=".xlsx,.xls" onchange="handleDianFile(this)">
-                <div id="dianInfo" class="file-info"></div>
+            <div class="file-upload">
+                <h3>📊 Archivo DIAN</h3>
+                <p>Prefijo (Col D), Folio (Col C), NIT Emisor (Col J)</p>
+                <input type="file" id="dianFile" accept=".xlsx,.xls" />
+                <div id="dianStatus"></div>
             </div>
-
-            <div class="upload-box system" onclick="document.getElementById('systemFile').click()">
-                <div class="upload-icon">💾</div>
-                <div class="upload-title">2. Cargar Excel del Sistema Contable</div>
-                <div class="upload-subtitle">Nombres en columna B, Precios en columna G</div>
-                <input type="file" id="systemFile" class="hidden" accept=".xlsx,.xls" onchange="handleSystemFile(this)">
-                <div id="systemInfo" class="file-info"></div>
+            
+            <div class="file-upload">
+                <h3>💼 Sistema Contable</h3>
+                <p>NIT Emisor (Col B), Prefijo+Folio (Col D)</p>
+                <input type="file" id="contableFile" accept=".xlsx,.xls" />
+                <div id="contableStatus"></div>
             </div>
         </div>
-
-        <button id="compareBtn" class="compare-button" onclick="compareFiles()" disabled>
+        
+        <button class="compare-btn" id="compareBtn" onclick="compareFiles()" disabled>
             Comparar Archivos
         </button>
-
-        <div id="results" class="results hidden">
-            <div class="result-section">
-                <h2>📊 Resumen de Comparación</h2>
-                <div class="stats-grid" id="statsGrid">
-                    <!-- Stats will be populated here -->
-                </div>
-            </div>
-
-            <div id="matchesSection" class="result-section hidden">
-                <div class="result-header" style="color: #059669;">
-                    ✅ Coincidencias Exactas (<span id="matchesCount">0</span>)
-                </div>
-                <div style="overflow-x: auto;">
-                    <table class="result-table" id="matchesTable">
-                        <thead>
-                            <tr style="background-color: #d1fae5;">
-                                <th>Fila</th>
-                                <th>Nombre</th>
-                                <th>Precio</th>
-                                <th>Columnas</th>
-                            </tr>
-                        </thead>
-                        <tbody id="matchesBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="dianOnlySection" class="result-section hidden">
-                <div class="result-header" style="color: #d97706;">
-                    ⚠️ Solo en DIAN (<span id="dianOnlyCount">0</span>)
-                </div>
-                <p style="font-size: 0.875rem; color: #92400e; margin-bottom: 16px;">
-                    Estos registros están en el archivo de la DIAN pero no en el sistema contable
-                </p>
-                <div style="overflow-x: auto;">
-                    <table class="result-table" id="dianOnlyTable">
-                        <thead>
-                            <tr style="background-color: #fed7aa;">
-                                <th>Fila</th>
-                                <th>Nombre</th>
-                                <th>Precio</th>
-                                <th>Columnas</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dianOnlyBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="systemOnlySection" class="result-section hidden">
-                <div class="result-header" style="color: #dc2626;">
-                    ❌ Solo en Sistema Contable (<span id="systemOnlyCount">0</span>)
-                </div>
-                <p style="font-size: 0.875rem; color: #991b1b; margin-bottom: 16px;">
-                    Estos registros están en el sistema contable pero no en el archivo de la DIAN
-                </p>
-                <div style="overflow-x: auto;">
-                    <table class="result-table" id="systemOnlyTable">
-                        <thead>
-                            <tr style="background-color: #fecaca;">
-                                <th>Fila</th>
-                                <th>Nombre</th>
-                                <th>Precio</th>
-                                <th>Columnas</th>
-                            </tr>
-                        </thead>
-                        <tbody id="systemOnlyBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+        
+        <div id="loadingDiv" class="loading" style="display: none;">
+            <p>🔄 Procesando archivos...</p>
         </div>
-
-        <div class="info-box">
-            <div class="info-title">ℹ️ Información sobre la comparación:</div>
-            <ul class="info-list">
-                <li>• <strong>DIAN:</strong> Nombres en columna K, Precios en columna AD</li>
-                <li>• <strong>Sistema Contable:</strong> Nombres en columna B, Precios en columna G</li>
-                <li>• La comparación se hace por nombre Y precio exactos</li>
-                <li>• Los precios se normalizan automáticamente para la comparación</li>
-                <li>• Se muestran TODOS los registros específicos, no solo conteos</li>
-            </ul>
+        
+        <div id="results" class="results" style="display: none;">
+            <div class="stats" id="statsContainer"></div>
+            
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('coincidencias')">✅ Coincidencias</button>
+                <button class="tab" onclick="showTab('solo-dian')">📋 Solo en DIAN</button>
+                <button class="tab" onclick="showTab('solo-contable')">💼 Solo en Contable</button>
+                <button class="tab" onclick="showTab('descartadas')">❌ Filas Descartadas</button>
+            </div>
+            
+            <div id="coincidencias" class="tab-content active">
+                <div class="table-container">
+                    <table id="coincidenciasTable">
+                        <thead>
+                            <tr>
+                                <th>NIT Emisor</th>
+                                <th>Prefijo</th>
+                                <th>Folio</th>
+                                <th>Origen</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="solo-dian" class="tab-content">
+                <div class="table-container">
+                    <table id="soloDianTable">
+                        <thead>
+                            <tr>
+                                <th>NIT Emisor</th>
+                                <th>Prefijo</th>
+                                <th>Folio</th>
+                                <th>Observación</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="solo-contable" class="tab-content">
+                <div class="table-container">
+                    <table id="soloContableTable">
+                        <thead>
+                            <tr>
+                                <th>NIT Emisor</th>
+                                <th>Prefijo</th>
+                                <th>Folio</th>
+                                <th>Observación</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="descartadas" class="tab-content">
+                <h3>Archivos Descartados</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div>
+                        <h4>📋 DIAN - Filas Descartadas</h4>
+                        <div class="table-container">
+                            <table id="descartadasDianTable">
+                                <thead>
+                                    <tr>
+                                        <th>Fila</th>
+                                        <th>Col C (Folio)</th>
+                                        <th>Col D (Prefijo)</th>
+                                        <th>Col J (NIT)</th>
+                                        <th>Motivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>💼 Sistema Contable - Filas Descartadas</h4>
+                        <div class="table-container">
+                            <table id="descartadasContableTable">
+                                <thead>
+                                    <tr>
+                                        <th>Fila</th>
+                                        <th>Col B (Original)</th>
+                                        <th>Col D (Original)</th>
+                                        <th>NIT Extraído</th>
+                                        <th>Motivo</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
         let dianData = null;
-        let systemData = null;
+        let contableData = null;
 
-        function handleDianFile(input) {
-            if (input.files[0]) {
-                handleFileUpload(input.files[0], 'dian');
+        // Función para extraer NIT de texto como "PURICLOR S.A.S Nit 900396852" o "PURICLOR S.A.S Nit: 900396852"
+        function extractNIT(text) {
+            if (!text) return '';
+            const textStr = text.toString().trim();
+            
+            // Buscar diferentes patrones de NIT
+            let nitMatch = textStr.match(/Nit[:\s]+(\d+)/i);
+            if (!nitMatch) {
+                nitMatch = textStr.match(/NIT[:\s]+(\d+)/i);
             }
+            if (!nitMatch) {
+                // Buscar patrón "Nombre Nit 123456789" (sin dos puntos)
+                nitMatch = textStr.match(/\s+Nit\s+(\d+)/i);
+            }
+            if (!nitMatch) {
+                // Buscar números al final después de "Nit"
+                nitMatch = textStr.match(/Nit\s*(\d{8,12})/i);
+            }
+            if (!nitMatch) {
+                // Como último recurso, buscar secuencia de 8-12 dígitos
+                nitMatch = textStr.match(/(\d{8,12})/);
+            }
+            
+            return nitMatch ? nitMatch[1].trim() : '';
         }
 
-        function handleSystemFile(input) {
-            if (input.files[0]) {
-                handleFileUpload(input.files[0], 'system');
+        // Función para extraer prefijo y folio de texto de la columna D
+        function extractPrefijoFolio(text) {
+            if (!text) return { prefijo: '', folio: '' };
+            const textStr = text.toString().trim();
+            
+            // Buscar patrones como "FE 139325", "PBU 53264", "BRO 7867", etc.
+            const match = textStr.match(/^([A-Z]+)\s+(\d+)$/);
+            if (match) {
+                return {
+                    prefijo: match[1].trim(),
+                    folio: match[2].trim()
+                };
             }
+            
+            // Buscar patrón con guión como "SETP1-123456"
+            if (textStr.includes('-')) {
+                const parts = textStr.split('-');
+                return {
+                    prefijo: parts[0]?.trim() || '',
+                    folio: parts[1]?.trim() || ''
+                };
+            }
+            
+            // Buscar cualquier patrón de letras seguido de números
+            const generalMatch = textStr.match(/^([A-Za-z]+\d*)\s*(\d+)$/);
+            if (generalMatch) {
+                return {
+                    prefijo: generalMatch[1].trim(),
+                    folio: generalMatch[2].trim()
+                };
+            }
+            
+            return { prefijo: textStr, folio: '' };
         }
 
-        // Función para convertir letra de columna a índice
-        function columnLetterToIndex(letter) {
-            let index = 0;
-            for (let i = 0; i < letter.length; i++) {
-                index = index * 26 + (letter.charCodeAt(i) - 64);
+        // Manejar carga de archivos
+        document.getElementById('dianFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                readExcelFile(file, 'dian');
             }
-            return index - 1; // Convertir a índice base 0
-        }
+        });
 
-        async function handleFileUpload(file, type) {
-            const infoElement = document.getElementById(type === 'dian' ? 'dianInfo' : 'systemInfo');
-            infoElement.innerHTML = '<div style="color: #3b82f6;">Cargando...</div>';
+        document.getElementById('contableFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                readExcelFile(file, 'contable');
+            }
+        });
 
-            try {
-                console.log(`Cargando archivo ${type}:`, file.name, 'Tamaño:', file.size, 'Tipo:', file.type);
-                
-                const arrayBuffer = await file.arrayBuffer();
-                console.log('ArrayBuffer size:', arrayBuffer.byteLength);
-                
-                const workbook = XLSX.read(arrayBuffer, { 
-                    type: 'array',
-                    cellDates: true,
-                    cellNF: false,
-                    cellText: false
-                });
-                
-                console.log(`${type} - Hojas disponibles:`, workbook.SheetNames);
-                
-                if (workbook.SheetNames.length === 0) {
-                    throw new Error('No se encontraron hojas en el archivo Excel');
-                }
-                
-                const sheetName = workbook.SheetNames[0];
-                const worksheet = workbook.Sheets[sheetName];
-                
-                console.log(`${type} - Usando hoja:`, sheetName);
-                console.log(`${type} - Rango de la hoja:`, worksheet['!ref']);
-                
-                // Intentar diferentes métodos de lectura
-                const data1 = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
-                const data2 = XLSX.utils.sheet_to_json(worksheet, { raw: true });
-                
-                console.log(`${type} - Método 1 (array): ${data1.length} filas`);
-                console.log(`${type} - Método 2 (objetos): ${data2.length} registros`);
-                console.log(`${type} - Primera fila método 1:`, data1[0]);
-                console.log(`${type} - Primer objeto método 2:`, data2[0]);
-                
-                // Usar el método que funcione mejor
-                let data, headers;
-                if (data1.length > 0) {
-                    data = data1;
-                    headers = data1[0] || [];
-                } else if (data2.length > 0) {
-                    // Convertir objetos a arrays
-                    const keys = Object.keys(data2[0]);
-                    headers = keys;
-                    data = [keys, ...data2.map(obj => keys.map(key => obj[key]))];
-                } else {
-                    throw new Error('No se pudieron leer datos del archivo Excel');
-                }
-
-                console.log(`${type} - Datos finales: ${data.length} filas`);
-                console.log(`${type} - Headers:`, headers);
-
-                let nameColumnIndex, priceColumnIndex;
-                
-                if (type === 'dian') {
-                    nameColumnIndex = columnLetterToIndex('K');  // Columna K = índice 10
-                    priceColumnIndex = columnLetterToIndex('AD'); // Columna AD = índice 29
-                } else {
-                    nameColumnIndex = columnLetterToIndex('B');  // Columna B = índice 1
-                    priceColumnIndex = columnLetterToIndex('G'); // Columna G = índice 6
-                }
-
-                console.log(`${type} - Name column index:`, nameColumnIndex, `Price column index:`, priceColumnIndex);
-
-                const rows = [];
-                const debugSamples = [];
-                let totalRowsProcessed = 0;
-
-                for (let i = 1; i < data.length; i++) {
-                    totalRowsProcessed++;
-                    const row = data[i] || [];
-                    let name = row[nameColumnIndex];
-                    let price = row[priceColumnIndex];
+        function readExcelFile(file, type) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                     
-                    // Debug para las primeras 10 filas
-                    if (i <= 10) {
-                        debugSamples.push({
-                            fila: i + 1,
-                            rowLength: row.length,
-                            nombre: name,
-                            precio: price,
-                            nombreValido: name && name.toString().trim() !== '',
-                            precioValido: price !== undefined && price !== null && price !== '',
-                            fullRow: row.slice(0, 5) // Solo las primeras 5 columnas para no saturar
-                        });
+                    if (type === 'dian') {
+                        dianData = jsonData;
+                        document.getElementById('dianStatus').innerHTML = 
+                            `<div class="success">✅ Archivo cargado: ${jsonData.length} filas</div>`;
+                    } else {
+                        contableData = jsonData;
+                        document.getElementById('contableStatus').innerHTML = 
+                            `<div class="success">✅ Archivo cargado: ${jsonData.length} filas</div>`;
                     }
                     
-                    // Solo incluir filas que tengan nombre válido
-                    if (name && name.toString().trim() !== '') {
-                        rows.push({
-                            index: i,
-                            name: name.toString().trim(),
-                            price: price,
-                            fullRow: row,
-                            nameColumn: type === 'dian' ? 'K' : 'B',
-                            priceColumn: type === 'dian' ? 'AD' : 'G'
-                        });
+                    // Habilitar botón de comparar si ambos archivos están cargados
+                    if (dianData && contableData) {
+                        document.getElementById('compareBtn').disabled = false;
                     }
+                    
+                } catch (error) {
+                    const statusDiv = type === 'dian' ? 'dianStatus' : 'contableStatus';
+                    document.getElementById(statusDiv).innerHTML = 
+                        `<div class="error">❌ Error al leer el archivo: ${error.message}</div>`;
                 }
-
-                if (type === 'dian') {
-                    dianData = { headers, rows, fileType: type };
-                } else {
-                    systemData = { headers, rows, fileType: type };
-                }
-
-                console.log(`${type} - Registros válidos:`, rows.length);
-                console.log(`${type} - Muestras debug:`, debugSamples);
-
-                const debugInfo = debugSamples.map(s => 
-                    `Fila ${s.fila} (${s.rowLength} cols): "${s.nombre}" - ${s.precio} (Nombre:${s.nombreValido ? '✓' : '✗'}, Precio:${s.precioValido ? '✓' : '✗'})`
-                ).join('<br>');
-
-                infoElement.innerHTML = `
-                    <div class="success-text">✓ ${file.name}</div>
-                    <div style="font-size: 0.75rem; color: #64748b;">${rows.length} registros cargados</div>
-                    <div class="debug-info">
-                        <strong>Debug info:</strong><br>
-                        Archivo: ${file.name} (${Math.round(file.size/1024)}KB)<br>
-                        Hojas: ${workbook.SheetNames.join(', ')}<br>
-                        Rango: ${worksheet['!ref'] || 'No definido'}<br>
-                        Total filas en Excel: ${totalRowsProcessed}<br>
-                        Filas con nombre válido: ${rows.length}<br>
-                        Columnas: ${type === 'dian' ? 'K(nombres), AD(precios)' : 'B(nombres), G(precios)'}<br>
-                        <strong>Muestra primeras filas:</strong><br>
-                        ${debugInfo}
-                    </div>
-                `;
-
-                updateCompareButton();
-            } catch (error) {
-                console.error('Error al leer el archivo:', error);
-                infoElement.innerHTML = `
-                    <div style="color: #dc2626;">Error al cargar el archivo:</div>
-                    <div style="font-size: 0.75rem; color: #dc2626;">${error.message}</div>
-                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 8px;">
-                        Verifica que el archivo sea un Excel válido (.xlsx o .xls)
-                    </div>
-                `;
-            }
-        }
-
-        function updateCompareButton() {
-            const btn = document.getElementById('compareBtn');
-            if (dianData && systemData) {
-                btn.disabled = false;
-                btn.textContent = 'Comparar Archivos';
-            }
-        }
-
-        function normalizeValue(value) {
-            if (value === null || value === undefined) return '';
-            if (typeof value === 'number') return value;
-            return value.toString().trim().toLowerCase();
-        }
-
-        function normalizePrice(price) {
-            if (price === null || price === undefined) return 0;
-            if (typeof price === 'number') return price;
-            const cleanPrice = price.toString().replace(/[^\d.,-]/g, '');
-            return parseFloat(cleanPrice.replace(',', '.')) || 0;
-        }
-
-        function formatPrice(price) {
-            const numPrice = normalizePrice(price);
-            return new Intl.NumberFormat('es-CO', {
-                style: 'currency',
-                currency: 'COP',
-                minimumFractionDigits: 0
-            }).format(numPrice);
+            };
+            reader.readAsArrayBuffer(file);
         }
 
         function compareFiles() {
-            if (!dianData || !systemData) return;
-
-            const btn = document.getElementById('compareBtn');
-            btn.disabled = true;
-            btn.textContent = 'Comparando...';
-
-            try {
-                const matches = [];
-                const dianOnly = [];
-                const systemOnly = [];
-                
-                // Crear mapa del sistema
-                const systemMap = new Map();
-                systemData.rows.forEach((row, index) => {
-                    const normalizedName = normalizeValue(row.name);
-                    const normalizedPrice = normalizePrice(row.price);
-                    const key = `${normalizedName}|${normalizedPrice}`;
-                    
-                    if (!systemMap.has(key)) {
-                        systemMap.set(key, []);
-                    }
-                    systemMap.get(key).push({ ...row, originalIndex: index });
-                });
-
-                const matchedSystemIndices = new Set();
-
-                // Comparar DIAN con Sistema
-                dianData.rows.forEach((dianRow, index) => {
-                    const normalizedDianName = normalizeValue(dianRow.name);
-                    const normalizedDianPrice = normalizePrice(dianRow.price);
-                    const key = `${normalizedDianName}|${normalizedDianPrice}`;
-                    
-                    if (systemMap.has(key)) {
-                        const matchingRows = systemMap.get(key);
-                        const unmatchedRow = matchingRows.find(systemRow => 
-                            !matchedSystemIndices.has(systemRow.originalIndex)
-                        );
-                        
-                        if (unmatchedRow) {
-                            matches.push({
-                                dianRow: { ...dianRow, originalIndex: index },
-                                systemRow: unmatchedRow,
-                                name: dianRow.name,
-                                price: dianRow.price
-                            });
-                            matchedSystemIndices.add(unmatchedRow.originalIndex);
-                        } else {
-                            dianOnly.push({ ...dianRow, originalIndex: index });
-                        }
-                    } else {
-                        dianOnly.push({ ...dianRow, originalIndex: index });
-                    }
-                });
-
-                systemData.rows.forEach((row, index) => {
-                    if (!matchedSystemIndices.has(index)) {
-                        systemOnly.push({ ...row, originalIndex: index });
-                    }
-                });
-
-                displayResults({
-                    matches,
-                    dianOnly,
-                    systemOnly,
-                    stats: {
-                        totalDian: dianData.rows.length,
-                        totalSystem: systemData.rows.length,
-                        matches: matches.length,
-                        dianOnly: dianOnly.length,
-                        systemOnly: systemOnly.length
-                    }
-                });
-
-            } catch (error) {
-                console.error('Error en la comparación:', error);
-                alert('Error al comparar los archivos.');
-            } finally {
-                btn.disabled = false;
-                btn.textContent = 'Comparar Archivos';
+            if (!dianData || !contableData) {
+                alert('Por favor carga ambos archivos primero');
+                return;
             }
+
+            document.getElementById('loadingDiv').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+
+            setTimeout(() => {
+                try {
+                    // Procesar datos DIAN (empezar desde fila 1 para saltar encabezados)
+                    const dianRecords = [];
+                    const dianDescartadas = [];
+                    
+                    for (let i = 1; i < dianData.length; i++) {
+                        const row = dianData[i];
+                        const folio = row[2]?.toString()?.trim() || '';
+                        const prefijo = row[3]?.toString()?.trim() || '';
+                        const nitEmisor = row[9]?.toString()?.trim() || '';
+                        
+                        let motivo = '';
+                        if (!folio) motivo += 'Folio vacío. ';
+                        if (!prefijo) motivo += 'Prefijo vacío. ';
+                        if (!nitEmisor) motivo += 'NIT vacío. ';
+                        
+                        if (motivo) {
+                            dianDescartadas.push({
+                                fila: i + 1,
+                                folio: folio || 'VACÍO',
+                                prefijo: prefijo || 'VACÍO',
+                                nitEmisor: nitEmisor || 'VACÍO',
+                                motivo: motivo.trim()
+                            });
+                        } else {
+                            dianRecords.push({
+                                folio: folio,
+                                prefijo: prefijo,
+                                nitEmisor: nitEmisor,
+                                key: `${nitEmisor}_${prefijo}_${folio}`
+                            });
+                        }
+                    }
+
+                    // Procesar datos Sistema Contable
+                    const contableRecords = [];
+                    const contableDescartadas = [];
+                    
+                    for (let i = 1; i < contableData.length; i++) {
+                        const row = contableData[i];
+                        const originalB = row[1]?.toString()?.trim() || '';
+                        const originalD = row[3]?.toString()?.trim() || '';
+                        
+                        let motivo = '';
+                        if (!originalB) motivo += 'Columna B vacía. ';
+                        if (!originalD) motivo += 'Columna D vacía. ';
+                        
+                        if (!motivo) {
+                            const nitEmisor = extractNIT(originalB);
+                            const prefijoFolio = extractPrefijoFolio(originalD);
+                            
+                            if (!nitEmisor) motivo += 'No se pudo extraer NIT. ';
+                            if (!prefijoFolio.prefijo) motivo += 'No se pudo extraer prefijo. ';
+                            if (!prefijoFolio.folio) motivo += 'No se pudo extraer folio. ';
+                            
+                            if (motivo) {
+                                contableDescartadas.push({
+                                    fila: i + 1,
+                                    originalB: originalB || 'VACÍO',
+                                    originalD: originalD || 'VACÍO',
+                                    nitExtraido: nitEmisor || 'NO EXTRAÍDO',
+                                    motivo: motivo.trim()
+                                });
+                            } else {
+                                contableRecords.push({
+                                    folio: prefijoFolio.folio,
+                                    prefijo: prefijoFolio.prefijo,
+                                    nitEmisor: nitEmisor,
+                                    key: `${nitEmisor}_${prefijoFolio.prefijo}_${prefijoFolio.folio}`,
+                                    originalB: originalB,
+                                    originalD: originalD
+                                });
+                            }
+                        } else {
+                            contableDescartadas.push({
+                                fila: i + 1,
+                                originalB: originalB || 'VACÍO',
+                                originalD: originalD || 'VACÍO',
+                                nitExtraido: 'NO PROCESADO',
+                                motivo: motivo.trim()
+                            });
+                        }
+                    }
+                    
+                    // Mostrar información de procesamiento
+                    if (dianRecords.length === 0) {
+                        alert('No se pudieron procesar registros de DIAN. Verifica que las columnas C, D y J tengan datos.');
+                        return;
+                    }
+                    if (contableRecords.length === 0) {
+                        alert('No se pudieron procesar registros del Sistema Contable. Verifica que las columnas B y D tengan datos.');
+                        return;
+                    }
+
+                    // Crear sets para comparación
+                    const dianKeys = new Set(dianRecords.map(r => r.key));
+                    const contableKeys = new Set(contableRecords.map(r => r.key));
+
+                    // Encontrar coincidencias y diferencias
+                    const coincidencias = dianRecords.filter(r => contableKeys.has(r.key));
+                    const soloDian = dianRecords.filter(r => !contableKeys.has(r.key));
+                    const soloContable = contableRecords.filter(r => !dianKeys.has(r.key));
+
+                    // Mostrar resultados
+                    displayResults(coincidencias, soloDian, soloContable, dianDescartadas, contableDescartadas);
+
+                } catch (error) {
+                    alert('Error al procesar los archivos: ' + error.message);
+                    console.error(error);
+                } finally {
+                    document.getElementById('loadingDiv').style.display = 'none';
+                }
+            }, 100);
         }
 
-        function displayResults(comparison) {
-            document.getElementById('results').classList.remove('hidden');
-
-            // Stats
-            const statsGrid = document.getElementById('statsGrid');
-            statsGrid.innerHTML = `
-                <div class="stat-card" style="background-color: #eff6ff;">
-                    <div class="stat-number" style="color: #1e40af;">${comparison.stats.totalDian}</div>
-                    <div class="stat-label" style="color: #1e40af;">Registros DIAN</div>
+        function displayResults(coincidencias, soloDian, soloContable, dianDescartadas, contableDescartadas) {
+            // Mostrar estadísticas con información de descartados
+            const totalDian = coincidencias.length + soloDian.length;
+            const totalContable = coincidencias.length + soloContable.length;
+            
+            document.getElementById('statsContainer').innerHTML = `
+                <div class="stat-card">
+                    <span class="stat-number">${coincidencias.length}</span>
+                    <div>Coincidencias</div>
                 </div>
-                <div class="stat-card" style="background-color: #f0fdf4;">
-                    <div class="stat-number" style="color: #15803d;">${comparison.stats.totalSystem}</div>
-                    <div class="stat-label" style="color: #15803d;">Registros Sistema</div>
+                <div class="stat-card">
+                    <span class="stat-number">${soloDian.length}</span>
+                    <div>Solo en DIAN</div>
                 </div>
-                <div class="stat-card" style="background-color: #ecfdf5;">
-                    <div class="stat-number" style="color: #059669;">${comparison.stats.matches}</div>
-                    <div class="stat-label" style="color: #059669;">Coincidencias</div>
+                <div class="stat-card">
+                    <span class="stat-number">${soloContable.length}</span>
+                    <div>Solo en Contable</div>
                 </div>
-                <div class="stat-card" style="background-color: #fff7ed;">
-                    <div class="stat-number" style="color: #d97706;">${comparison.stats.dianOnly}</div>
-                    <div class="stat-label" style="color: #d97706;">Solo en DIAN</div>
+                <div class="stat-card">
+                    <span class="stat-number">${totalDian}</span>
+                    <div>Procesados DIAN</div>
+                    <small>(${dianDescartadas.length} descartadas)</small>
                 </div>
-                <div class="stat-card" style="background-color: #fef2f2;">
-                    <div class="stat-number" style="color: #dc2626;">${comparison.stats.systemOnly}</div>
-                    <div class="stat-label" style="color: #dc2626;">Solo en Sistema</div>
+                <div class="stat-card">
+                    <span class="stat-number">${totalContable}</span>
+                    <div>Procesados Contable</div>
+                    <small>(${contableDescartadas.length} descartadas)</small>
                 </div>
             `;
 
-            // Matches
-            if (comparison.matches.length > 0) {
-                document.getElementById('matchesSection').classList.remove('hidden');
-                document.getElementById('matchesCount').textContent = comparison.matches.length;
-                const tbody = document.getElementById('matchesBody');
-                tbody.innerHTML = comparison.matches.map(match => `
-                    <tr>
-                        <td>${match.dianRow.originalIndex + 2}</td>
-                        <td><strong>${match.name}</strong></td>
-                        <td style="text-align: right;">${formatPrice(match.price)}</td>
-                        <td style="font-size: 0.75rem; color: #64748b;">K/AD</td>
-                    </tr>
-                `).join('');
+            // Llenar tabla de coincidencias
+            fillTable('coincidenciasTable', coincidencias, 'Ambos sistemas');
+
+            // Llenar tabla solo DIAN
+            fillTable('soloDianTable', soloDian, 'No encontrado en Sistema Contable');
+
+            // Llenar tabla solo Contable
+            fillTable('soloContableTable', soloContable, 'No encontrado en DIAN');
+            
+            // Llenar tablas de descartadas
+            fillDescartadasDian(dianDescartadas);
+            fillDescartadasContable(contableDescartadas);
+
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function fillDescartadasDian(data) {
+            const tbody = document.getElementById('descartadasDianTable').querySelector('tbody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell(0);
+                cell.colSpan = 5;
+                cell.textContent = 'No hay filas descartadas';
+                cell.style.textAlign = 'center';
+                cell.style.fontStyle = 'italic';
+                cell.style.color = '#666';
+                return;
             }
 
-            // DIAN Only
-            if (comparison.dianOnly.length > 0) {
-                document.getElementById('dianOnlySection').classList.remove('hidden');
-                document.getElementById('dianOnlyCount').textContent = comparison.dianOnly.length;
-                const tbody = document.getElementById('dianOnlyBody');
-                tbody.innerHTML = comparison.dianOnly.map(row => `
-                    <tr>
-                        <td>${row.originalIndex + 2}</td>
-                        <td><strong>${row.name}</strong></td>
-                        <td style="text-align: right;">${formatPrice(row.price)}</td>
-                        <td style="font-size: 0.75rem; color: #64748b;">K/AD</td>
-                    </tr>
-                `).join('');
+            data.forEach(record => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = record.fila;
+                row.insertCell(1).textContent = record.folio;
+                row.insertCell(2).textContent = record.prefijo;
+                row.insertCell(3).textContent = record.nitEmisor;
+                row.insertCell(4).textContent = record.motivo;
+                
+                if (record.motivo.includes('vacío')) {
+                    row.style.backgroundColor = '#f8d7da';
+                }
+            });
+        }
+
+        function fillDescartadasContable(data) {
+            const tbody = document.getElementById('descartadasContableTable').querySelector('tbody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell(0);
+                cell.colSpan = 5;
+                cell.textContent = 'No hay filas descartadas';
+                cell.style.textAlign = 'center';
+                cell.style.fontStyle = 'italic';
+                cell.style.color = '#666';
+                return;
             }
 
-            // System Only
-            if (comparison.systemOnly.length > 0) {
-                document.getElementById('systemOnlySection').classList.remove('hidden');
-                document.getElementById('systemOnlyCount').textContent = comparison.systemOnly.length;
-                const tbody = document.getElementById('systemOnlyBody');
-                tbody.innerHTML = comparison.systemOnly.map(row => `
-                    <tr>
-                        <td>${row.originalIndex + 2}</td>
-                        <td><strong>${row.name}</strong></td>
-                        <td style="text-align: right;">${formatPrice(row.price)}</td>
-                        <td style="font-size: 0.75rem; color: #64748b;">B/G</td>
-                    </tr>
-                `).join('');
+            data.forEach(record => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = record.fila;
+                row.insertCell(1).textContent = record.originalB;
+                row.insertCell(2).textContent = record.originalD;
+                row.insertCell(3).textContent = record.nitExtraido;
+                row.insertCell(4).textContent = record.motivo;
+                
+                if (record.motivo.includes('vacío')) {
+                    row.style.backgroundColor = '#f8d7da';
+                } else if (record.motivo.includes('extraer')) {
+                    row.style.backgroundColor = '#fff3cd';
+                }
+            });
+        }
+
+        function fillTable(tableId, data, observacion) {
+            const tbody = document.getElementById(tableId).querySelector('tbody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                const row = tbody.insertRow();
+                const cell = row.insertCell(0);
+                cell.colSpan = 4;
+                cell.textContent = 'No se encontraron registros';
+                cell.style.textAlign = 'center';
+                cell.style.fontStyle = 'italic';
+                cell.style.color = '#666';
+                return;
             }
+
+            data.forEach(record => {
+                const row = tbody.insertRow();
+                row.insertCell(0).textContent = record.nitEmisor;
+                row.insertCell(1).textContent = record.prefijo;
+                row.insertCell(2).textContent = record.folio;
+                
+                const obsCell = row.insertCell(3);
+                obsCell.textContent = observacion;
+                
+                // Si hay datos originales, mostrarlos como tooltip
+                if (record.originalB || record.originalD) {
+                    obsCell.title = `Original B: ${record.originalB || 'N/A'}\nOriginal D: ${record.originalD || 'N/A'}`;
+                }
+            });
+        }
+
+        function showTab(tabName) {
+            // Ocultar todos los contenidos
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+
+            // Desactivar todas las pestañas
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Mostrar el contenido seleccionado
+            document.getElementById(tabName).classList.add('active');
+
+            // Activar la pestaña seleccionada
+            event.target.classList.add('active');
         }
     </script>
 </body>
